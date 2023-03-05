@@ -1,11 +1,22 @@
 import { auth, googleProvider } from "../firebase-config/firebase.js";
-import { signInWithPopup } from "firebase/auth";
-import { useEffect } from "react";
+import { signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
+import { useEffect, useState } from "react";
 
 function Auth() {
-  const signInWithGoogle = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const createUser = async () => {
     try {
-      signInWithPopup(auth, googleProvider);
+      createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error(error);
     }
@@ -19,9 +30,11 @@ function Auth() {
     }
   };
 
+  console.log("outside", auth?.currentUser?.email);
+
   useEffect(() => {
     console.log("Auth component mounted");
-    console.log(auth?.currentUser?.email);
+    console.log("inside", auth?.currentUser?.email);
   });
 
   return (
@@ -30,6 +43,20 @@ function Auth() {
       <h2>{auth?.currentUser?.email}</h2>
       <button onClick={signInWithGoogle}>Sign In With Google</button>
       <button onClick={logout}>Log Out</button>
+      <hr />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={createUser}>Create User</button>
     </>
   );
 }
